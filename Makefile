@@ -15,8 +15,9 @@ LIBDIR		:= /lib
 CONFDIR		:= /etc/apk
 MANDIR		:= /usr/share/man
 DOCDIR		:= /usr/share/doc/apk
+INCLUDEDIR	:= /usr/include/apk
 
-export DESTDIR SBINDIR LIBDIR CONFDIR MANDIR DOCDIR
+export DESTDIR SBINDIR LIBDIR CONFDIR MANDIR DOCDIR INCLUDEDIR
 
 ##
 # Top-level subdirs

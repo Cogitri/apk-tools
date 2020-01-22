@@ -21,6 +21,7 @@ install-LUA_LIB-y	:= $(INSTALLDIR) $(DESTDIR)$(LUA_LIBDIR) && \
 			   $(INSTALL) $(LUA_LIB-y) $(DESTDIR)$(LUA_LIBDIR)
 endif
 
+
 progs-y			+= apk
 apk-objs		:= apk.o add.o del.o fix.o update.o info.o list.o \
 			   search.o upgrade.o cache.o ver.o index.o fetch.o \
@@ -83,4 +84,6 @@ install: $(obj)/apk $(LIBAPK-y) $(LUA_LIB-y)
 	$(install-LIBAPK_SHARED-y)
 	$(install-LIBAPK_STATIC-y)
 	$(install-LUA_LIB-y)
+	$(INSTALLDIR) $(DESTDIR)$(INCLUDEDIR)
+	$(INSTALL) -m644 src/*.h $(DESTDIR)$(INCLUDEDIR)
 
