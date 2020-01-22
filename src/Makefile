@@ -12,7 +12,6 @@ ifneq ($(LUAAPK),)
 LUA_VERSION		?= 5.3
 LUA_PC			?= lua$(LUA_VERSION)
 LUA_LIBDIR		?= /usr/lib/lua/$(LUA_VERSION)
-LIBAPK			:= YesPlease
 shlibs-y		+= apk.so
 apk.so-objs		:= lua-apk.o
 CFLAGS_lua-apk.o	:= -DAPK_VERSION=\"$(FULL_VERSION)\" \
@@ -32,31 +31,27 @@ libapk.so-objs		:= common.o database.o package.o archive.o \
 			   commit.o solver.o
 libapk.so-libs		:= libfetch/libfetch.a
 
+libapk.a-objs		:= $(libapk.so-objs)
+libapk.a-libs		:= $(libapk.so-libs)
+
 ifeq ($(TEST),y)
 progs-y			+= apk-test
 apk-test-objs		:= apk-test.o $(filter-out apk.o, $(apk-objs))
 endif
 
-ifeq ($(SHARED_LIBAPK),)
-apk-objs		+= $(libapk.so-objs)
-apk-test-objs		+= $(libapk.so-objs)
-apk.so-objs		+= $(libapk.so-objs)
-apk-libs		+= $(libapk.so-libs)
-apk-test-libs		+= $(libapk.so-libs)
-apk.so-libs		+= $(libapk.so-libs)
-else
-LIBAPK			:= YesPlease
-LIBS_apk		:= -lapk
-LIBS_apk-test		:= -lapk
-LIBS_apk.so		:= -L$(obj) -lapk
-endif
+libs-y					+= libapk.a
+LIBAPK_STATIC-y			:= $(obj)/libapk.a
+install-LIBAPK_STATIC-y	:= $(INSTALLDIR) $(DESTDIR)$(LIBDIR) && \
+			   $(INSTALL) $(LIBAPK_STATIC-y) $(DESTDIR)$(LIBDIR)
+apk-static-libs			:= $(libapk.a-libs) $(libapk.so-libs)
 
-ifneq ($(SHARED_LIBAPK),)
-shlibs-y		+= libapk.so
-LIBAPK-y		:= $(obj)/libapk.so
-install-LIBAPK-y	:= $(INSTALLDIR) $(DESTDIR)$(LIBDIR) && \
-			   $(INSTALL) $(LIBAPK-y) $(DESTDIR)$(LIBDIR)
-endif
+shlibs-y				+= libapk.so
+LIBAPK_SHARED-y			:= $(obj)/libapk.so
+install-LIBAPK_SHARED-y	:= $(INSTALLDIR) $(DESTDIR)$(LIBDIR) && \
+			   $(INSTALL) $(LIBAPK_SHARED-y) $(DESTDIR)$(LIBDIR)
+LIBS_apk				:= -lapk
+LIBS_apk-test			:= -lapk
+LIBS_apk.so				:= -L$(obj) -lapk
 
 CFLAGS_ALL		+= -D_ATFILE_SOURCE -Ilibfetch
 CFLAGS_apk.o		:= -DAPK_VERSION=\"$(FULL_VERSION)\"
@@ -65,7 +60,7 @@ CFLAGS_apk-test.o	:= -DAPK_VERSION=\"$(FULL_VERSION)\" -DOPENSSL_NO_ENGINE -DTES
 
 progs-$(STATIC)		+= apk.static
 apk.static-objs		:= $(filter-out apk.o,$(apk-objs)) apk-static.o
-apk.static-libs		:= $(apk-libs)
+apk.static-libs		:= $(apk-static-libs)
 LDFLAGS_apk.static	:= -static
 LIBS_apk.static		:= -Wl,--as-needed -ldl -Wl,--no-as-needed
 LDFLAGS_apk		+= -L$(obj)
@@ -76,13 +71,16 @@ LIBS			:= -Wl,--as-needed \
 				$(OPENSSL_LIBS) $(ZLIB_LIBS) \
 			   -Wl,--no-as-needed
 
-$(obj)/apk: $(LIBAPK-y)
+$(obj)/apk: $(LIBAPK_SHARED-y)
 
-$(obj)/apk.so: $(LIBAPK-y)
+$(obj)/apk.so: $(LIBAPK_SHARED-y)
+
+$(obj)/apk.a: $(LIBAPK_STATIC-y)
 
 install: $(obj)/apk $(LIBAPK-y) $(LUA_LIB-y)
 	$(INSTALLDIR) $(DESTDIR)$(SBINDIR)
 	$(INSTALL) $(obj)/apk $(DESTDIR)$(SBINDIR)
-	$(install-LIBAPK-y)
+	$(install-LIBAPK_SHARED-y)
+	$(install-LIBAPK_STATIC-y)
 	$(install-LUA_LIB-y)
 
