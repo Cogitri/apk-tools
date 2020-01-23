@@ -6,6 +6,14 @@
 PACKAGE := apk-tools
 VERSION := 2.10.4
 
+export VERSION
+
+##
+# Default tools
+LN		:= ln -sf
+
+export LN
+
 ##
 # Default directories
 

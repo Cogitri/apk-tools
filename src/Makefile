@@ -21,7 +21,6 @@ install-LUA_LIB-y	:= $(INSTALLDIR) $(DESTDIR)$(LUA_LIBDIR) && \
 			   $(INSTALL) $(LUA_LIB-y) $(DESTDIR)$(LUA_LIBDIR)
 endif
 
-
 progs-y			+= apk
 apk-objs		:= apk.o add.o del.o fix.o update.o info.o list.o \
 			   search.o upgrade.o cache.o ver.o index.o fetch.o \
@@ -40,19 +39,23 @@ progs-y			+= apk-test
 apk-test-objs		:= apk-test.o $(filter-out apk.o, $(apk-objs))
 endif
 
-libs-y					+= libapk.a
-LIBAPK_STATIC-y			:= $(obj)/libapk.a
-install-LIBAPK_STATIC-y	:= $(INSTALLDIR) $(DESTDIR)$(LIBDIR) && \
+libs-y += libapk.a
+LIBAPK_STATIC-y	 = $(obj)/libapk.a
+install-LIBAPK_STATIC-y := $(INSTALLDIR) $(DESTDIR)$(LIBDIR) && \
 			   $(INSTALL) $(LIBAPK_STATIC-y) $(DESTDIR)$(LIBDIR)
-apk-static-libs			:= $(libapk.a-libs) $(libapk.so-libs)
+apk-static-libs := $(libapk.a-libs) $(libapk.so-libs)
 
-shlibs-y				+= libapk.so
-LIBAPK_SHARED-y			:= $(obj)/libapk.so
-install-LIBAPK_SHARED-y	:= $(INSTALLDIR) $(DESTDIR)$(LIBDIR) && \
-			   $(INSTALL) $(LIBAPK_SHARED-y) $(DESTDIR)$(LIBDIR)
-LIBS_apk				:= -lapk
-LIBS_apk-test			:= -lapk
-LIBS_apk.so				:= -L$(obj) -lapk
+libapk_soname := $(basename $(basename $(VERSION)))
+shlibs-y += libapk.so
+LDFLAGS_libapk.so += -Wl,-soname,libapk.so.$(libapk_soname)
+LIBAPK_SHARED-y = $(obj)/libapk.so
+install-LIBAPK_SHARED-y := $(INSTALLDIR) $(DESTDIR)$(LIBDIR) && \
+			   $(INSTALL) $(LIBAPK_SHARED-y) $(DESTDIR)$(LIBDIR)/libapk.so.$(VERSION) && \
+			   $(LN) libapk.so.$(VERSION) $(DESTDIR)$(LIBDIR)/libapk.so.$(libapk_soname) && \
+			   $(LN) libapk.so.$(libapk_soname) $(DESTDIR)$(LIBDIR)/libapk.so
+LIBS_apk := -lapk
+LIBS_apk-test := -lapk
+LIBS_apk.so := -L$(obj) -lapk
 
 CFLAGS_ALL		+= -D_ATFILE_SOURCE -Ilibfetch
 CFLAGS_apk.o		:= -DAPK_VERSION=\"$(FULL_VERSION)\"
