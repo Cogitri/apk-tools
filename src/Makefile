@@ -81,7 +81,14 @@ $(obj)/apk.so: $(LIBAPK_SHARED-y)
 
 $(obj)/apk.a: $(LIBAPK_STATIC-y)
 
-install: $(obj)/apk $(LIBAPK-y) $(LUA_LIB-y)
+sed-pc:
+	cp src/apk.pc.in $(obj)/apk.pc
+	sed "s|@EXEC_DIR@|$(SBINDIR)|" -i $(obj)/apk.pc
+	sed "s|@LIB_DIR@|$(LIBDIR)|" -i $(obj)/apk.pc
+	sed "s|@INCLUDE_DIR@|$(INCLUDEDIR)|" -i $(obj)/apk.pc
+	sed "s|@VERSION@|$(VERSION)|" -i $(obj)/apk.pc
+
+install: $(obj)/apk $(LIBAPK-y) $(LUA_LIB-y) sed-pc
 	$(INSTALLDIR) $(DESTDIR)$(SBINDIR)
 	$(INSTALL) $(obj)/apk $(DESTDIR)$(SBINDIR)
 	$(install-LIBAPK_SHARED-y)
@@ -89,4 +96,6 @@ install: $(obj)/apk $(LIBAPK-y) $(LUA_LIB-y)
 	$(install-LUA_LIB-y)
 	$(INSTALLDIR) $(DESTDIR)$(INCLUDEDIR)
 	$(INSTALL) -m644 src/*.h $(DESTDIR)$(INCLUDEDIR)
+	$(INSTALLDIR) $(DESTDIR)$(PKGCONFIGDIR)
+	$(INSTALL) -m644 $(obj)/apk.pc $(DESTDIR)$(PKGCONFIGDIR)
 

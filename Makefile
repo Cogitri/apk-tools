@@ -24,8 +24,9 @@ CONFDIR		:= /etc/apk
 MANDIR		:= /usr/share/man
 DOCDIR		:= /usr/share/doc/apk
 INCLUDEDIR	:= /usr/include/apk
+PKGCONFIGDIR := /usr/lib/pkgconfig
 
-export DESTDIR SBINDIR LIBDIR CONFDIR MANDIR DOCDIR INCLUDEDIR
+export DESTDIR SBINDIR LIBDIR CONFDIR MANDIR DOCDIR INCLUDEDIR PKGCONFIGDIR
 
 ##
 # Top-level subdirs
