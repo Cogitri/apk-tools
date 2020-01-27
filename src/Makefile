@@ -36,11 +36,6 @@ libapk.so-libs		:= libfetch/libfetch.a
 libapk.a-objs		:= $(libapk.so-objs)
 libapk.a-libs		:= $(libapk.so-libs)
 
-ifeq ($(TEST),y)
-progs-y			+= apk-test
-apk-test-objs		:= apk-test.o $(filter-out apk.o, $(apk-objs))
-endif
-
 libs-y += libapk.a
 LIBAPK_STATIC-y	 = $(obj)/libapk.a
 install-LIBAPK_STATIC-y := $(INSTALLDIR) $(DESTDIR)$(LIBDIR) && \
@@ -55,6 +50,12 @@ install-LIBAPK_SHARED-y := $(INSTALLDIR) $(DESTDIR)$(LIBDIR) && \
 			   $(INSTALL) $(LIBAPK_SHARED-y) $(DESTDIR)$(LIBDIR)/libapk.so.$(VERSION) && \
 			   $(INSTALL) libapk.so.$(libapk_soname) $(DESTDIR)$(LIBDIR) && \
 			   $(INSTALL) libapk.so $(DESTDIR)$(LIBDIR)
+
+ifeq ($(TEST),y)
+progs-y += apk-test
+apk-test-objs := apk-test.o $(filter-out apk.o, $(apk-objs))
+$(obj)/apk-test: $(LIBAPK_SHARED-y)
+endif
 
 LIBS_apk := -lapk
 LIBS_apk-test := -lapk
