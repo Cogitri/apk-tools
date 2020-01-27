@@ -46,7 +46,7 @@ install:
 	$(INSTALL) README $(DESTDIR)$(DOCDIR)
 
 check test: FORCE
-	$(Q)$(MAKE) TEST=y
+	$(Q)$(MAKE) TEST=y all
 	$(Q)$(MAKE) -C test
 
 static:

@@ -1,3 +1,5 @@
+all: $(obj)/apk.so $(obj)/apk $(obj)/apk.a so-symlinks sed-pc
+
 PKG_CONFIG ?= pkg-config
 LUAAPK ?= yes
 
@@ -51,8 +53,9 @@ LDFLAGS_libapk.so += -Wl,-soname,libapk.so.$(libapk_soname)
 LIBAPK_SHARED-y = $(obj)/libapk.so
 install-LIBAPK_SHARED-y := $(INSTALLDIR) $(DESTDIR)$(LIBDIR) && \
 			   $(INSTALL) $(LIBAPK_SHARED-y) $(DESTDIR)$(LIBDIR)/libapk.so.$(VERSION) && \
-			   $(LN) libapk.so.$(VERSION) $(DESTDIR)$(LIBDIR)/libapk.so.$(libapk_soname) && \
-			   $(LN) libapk.so.$(libapk_soname) $(DESTDIR)$(LIBDIR)/libapk.so
+			   $(INSTALL) libapk.so.$(libapk_soname) $(DESTDIR)$(LIBDIR) && \
+			   $(INSTALL) libapk.so $(DESTDIR)$(LIBDIR)
+
 LIBS_apk := -lapk
 LIBS_apk-test := -lapk
 LIBS_apk.so := -L$(obj) -lapk
@@ -81,6 +84,10 @@ $(obj)/apk.so: $(LIBAPK_SHARED-y)
 
 $(obj)/apk.a: $(LIBAPK_STATIC-y)
 
+so-symlinks: $(obj)/apk.so
+	$(LN) libapk.so.$(VERSION) $(obj)/libapk.so.$(libapk_soname)
+	$(LN) libapk.so.$(libapk_soname) $(obj)/libapk.so
+
 sed-pc:
 	cp src/apk.pc.in $(obj)/apk.pc
 	sed "s|@EXEC_DIR@|$(SBINDIR)|" -i $(obj)/apk.pc
@@ -88,7 +95,7 @@ sed-pc:
 	sed "s|@INCLUDE_DIR@|$(INCLUDEDIR)|" -i $(obj)/apk.pc
 	sed "s|@VERSION@|$(VERSION)|" -i $(obj)/apk.pc
 
-install: $(obj)/apk $(LIBAPK-y) $(LUA_LIB-y) sed-pc
+install: $(obj)/apk $(LIBAPK-y) $(LUA_LIB-y) sed-pc so-symlinks
 	$(INSTALLDIR) $(DESTDIR)$(SBINDIR)
 	$(INSTALL) $(obj)/apk $(DESTDIR)$(SBINDIR)
 	$(install-LIBAPK_SHARED-y)
