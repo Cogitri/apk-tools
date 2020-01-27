@@ -43,7 +43,7 @@ libs-y += libapk.a
 LIBAPK_STATIC-y	 = $(obj)/libapk.a
 install-LIBAPK_STATIC-y := $(INSTALLDIR) $(DESTDIR)$(LIBDIR) && \
 			   $(INSTALL) $(LIBAPK_STATIC-y) $(DESTDIR)$(LIBDIR)
-apk-static-libs := $(libapk.a-libs) $(libapk.so-libs)
+apk-static-libs := $(libapk.a-libs) $(obj)/libapk.a
 
 libapk_soname := $(basename $(basename $(VERSION)))
 shlibs-y += libapk.so
