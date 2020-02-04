@@ -1,6 +1,10 @@
 src/apk
 src/apk-test
 src/apk.static
+src/apk.pc
+src/libapk.so
+src/libak.so.2
+src/libapk.so.2.10.4
 test/*.got
 test/repos.out
 test/repos.stamp
