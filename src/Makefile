@@ -86,6 +86,10 @@ $(obj)/apk.so: $(LIBAPK_SHARED-y)
 $(obj)/apk.a: $(LIBAPK_STATIC-y)
 
 so-symlinks: $(obj)/apk.so
+	# When compiling we name the resulting library file libapk.so. We want that
+	# To be a symlink to the actual file though, so move here if it's a file
+	# (in case this is called multiple times)
+	test -f $(obj)/libapk.so && mv $(obj)/libapk.so $(obj)/libapk.so.$(VERSION)
 	$(LN) libapk.so.$(VERSION) $(obj)/libapk.so.$(libapk_soname)
 	$(LN) libapk.so.$(libapk_soname) $(obj)/libapk.so
 
