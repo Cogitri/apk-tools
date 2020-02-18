@@ -1,5 +1,3 @@
-all: $(obj)/apk.so $(obj)/apk $(obj)/apk.a so-symlinks
-
 PKG_CONFIG ?= pkg-config
 LUAAPK ?= yes
 
@@ -28,13 +26,13 @@ apk-objs		:= apk.o add.o del.o fix.o update.o info.o list.o \
 			   search.o upgrade.o cache.o ver.o index.o fetch.o \
 			   audit.o verify.o dot.o policy.o stats.o manifest.o
 
-libapk.so-objs		:= common.o database.o package.o archive.o \
+libapk.so.$(VERSION)-objs		:= common.o database.o package.o archive.o \
 			   version.o io.o url.o gunzip.o blob.o hash.o print.o \
 			   commit.o solver.o
-libapk.so-libs		:= libfetch/libfetch.a
+libapk.so.$(VERSION)-libs		:= libfetch/libfetch.a
 
-libapk.a-objs		:= $(libapk.so-objs)
-libapk.a-libs		:= $(libapk.so-libs)
+libapk.a-objs		:= $(libapk.so.$(VERSION)-objs)
+libapk.a-libs		:= $(libapk.so.$(VERSION)-libs)
 
 libs-y += libapk.a
 LIBAPK_STATIC-y	 = $(obj)/libapk.a
@@ -43,9 +41,9 @@ install-LIBAPK_STATIC-y := $(INSTALLDIR) $(DESTDIR)$(LIBDIR) && \
 apk-static-libs := $(libapk.a-libs) $(obj)/libapk.a
 
 libapk_soname := $(basename $(basename $(VERSION)))
-shlibs-y += libapk.so
-LDFLAGS_libapk.so += -Wl,-soname,libapk.so.$(libapk_soname)
-LIBAPK_SHARED-y = $(obj)/libapk.so
+shlibs-y += libapk.so.$(VERSION)
+LDFLAGS_libapk.so.$(VERSION) += -Wl,-soname,libapk.so.$(libapk_soname)
+LIBAPK_SHARED-y = $(obj)/libapk.so.$(VERSION)
 install-LIBAPK_SHARED-y := $(INSTALLDIR) $(DESTDIR)$(LIBDIR) && \
 			   $(INSTALL) $(LIBAPK_SHARED-y) $(DESTDIR)$(LIBDIR)/libapk.so.$(VERSION) && \
 			   $(INSTALL) libapk.so.$(libapk_soname) $(DESTDIR)$(LIBDIR) && \
@@ -85,13 +83,13 @@ $(obj)/apk.so: $(LIBAPK_SHARED-y)
 
 $(obj)/apk.a: $(LIBAPK_STATIC-y)
 
-so-symlinks: $(obj)/apk.so
-	# When compiling we name the resulting library file libapk.so. We want that
-	# To be a symlink to the actual file though, so move here if it's a file
-	# (in case this is called multiple times)
-	test -f $(obj)/libapk.so && mv $(obj)/libapk.so $(obj)/libapk.so.$(VERSION)
+$(obj)/libapk.so.$(libapk_soname):
 	$(LN) libapk.so.$(VERSION) $(obj)/libapk.so.$(libapk_soname)
+
+$(obj)/libapk.so:
 	$(LN) libapk.so.$(libapk_soname) $(obj)/libapk.so
+
+generate-y	+= libapk.so.$(libapk_soname) libapk.so
 
 generate-y	+= apk.pc
 
@@ -102,7 +100,7 @@ $(obj)/apk.pc:
 	-e "s|@INCLUDE_DIR@|$(INCLUDEDIR)|" \
 	-e "s|@VERSION@|$(VERSION)|" -i $(obj)/apk.pc
 
-install: $(obj)/apk $(LIBAPK-y) $(LUA_LIB-y) sed-pc so-symlinks
+install: $(obj)/apk $(LIBAPK-y) $(LUA_LIB-y)
 	$(INSTALLDIR) $(DESTDIR)$(SBINDIR)
 	$(INSTALL) $(obj)/apk $(DESTDIR)$(SBINDIR)
 	$(install-LIBAPK_SHARED-y)

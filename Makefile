@@ -45,8 +45,8 @@ install:
 	$(INSTALLDIR) $(DESTDIR)$(DOCDIR)
 	$(INSTALL) README $(DESTDIR)$(DOCDIR)
 
-check test: FORCE
-	$(Q)$(MAKE) TEST=y so-symlinks
+check test: FORCE src/
+	$(Q)$(MAKE) TEST=y
 	$(Q)$(MAKE) -C test
 
 static:
