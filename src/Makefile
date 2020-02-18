@@ -1,4 +1,4 @@
-all: $(obj)/apk.so $(obj)/apk $(obj)/apk.a so-symlinks sed-pc
+all: $(obj)/apk.so $(obj)/apk $(obj)/apk.a so-symlinks
 
 PKG_CONFIG ?= pkg-config
 LUAAPK ?= yes
@@ -93,12 +93,14 @@ so-symlinks: $(obj)/apk.so
 	$(LN) libapk.so.$(VERSION) $(obj)/libapk.so.$(libapk_soname)
 	$(LN) libapk.so.$(libapk_soname) $(obj)/libapk.so
 
-sed-pc:
+generate-y	+= apk.pc
+
+$(obj)/apk.pc:
 	cp src/apk.pc.in $(obj)/apk.pc
-	sed "s|@EXEC_DIR@|$(SBINDIR)|" -i $(obj)/apk.pc
-	sed "s|@LIB_DIR@|$(LIBDIR)|" -i $(obj)/apk.pc
-	sed "s|@INCLUDE_DIR@|$(INCLUDEDIR)|" -i $(obj)/apk.pc
-	sed "s|@VERSION@|$(VERSION)|" -i $(obj)/apk.pc
+	sed -e "s|@EXEC_DIR@|$(SBINDIR)|" \
+	-e "s|@LIB_DIR@|$(LIBDIR)|" \
+	-e "s|@INCLUDE_DIR@|$(INCLUDEDIR)|" \
+	-e "s|@VERSION@|$(VERSION)|" -i $(obj)/apk.pc
 
 install: $(obj)/apk $(LIBAPK-y) $(LUA_LIB-y) sed-pc so-symlinks
 	$(INSTALLDIR) $(DESTDIR)$(SBINDIR)
