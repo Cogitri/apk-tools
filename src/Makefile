@@ -46,8 +46,8 @@ LDFLAGS_libapk.so.$(VERSION) += -Wl,-soname,libapk.so.$(libapk_soname)
 LIBAPK_SHARED-y = $(obj)/libapk.so.$(VERSION)
 install-LIBAPK_SHARED-y := $(INSTALLDIR) $(DESTDIR)$(LIBDIR) && \
 			   $(INSTALL) $(LIBAPK_SHARED-y) $(DESTDIR)$(LIBDIR)/libapk.so.$(VERSION) && \
-			   $(INSTALL) libapk.so.$(libapk_soname) $(DESTDIR)$(LIBDIR) && \
-			   $(INSTALL) libapk.so $(DESTDIR)$(LIBDIR)
+			   $(INSTALL) $(obj)/libapk.so.$(libapk_soname) $(DESTDIR)$(LIBDIR) && \
+			   $(INSTALL) $(obj)/libapk.so $(DESTDIR)$(LIBDIR)
 
 ifeq ($(TEST),y)
 progs-y += apk-test
