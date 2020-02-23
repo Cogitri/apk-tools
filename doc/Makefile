@@ -1,3 +1,6 @@
+SCDOC ?= yes
+
+ifneq ($(SCDOC),)
 scdocs-y += \
 	apk-cache.5 \
 	apk-keys.5 \
@@ -28,3 +31,4 @@ install:
 		$(INSTALLDIR) $(DESTDIR)$(MANDIR)/man$$section; \
 		$(INSTALL) $(obj)/$$page $(DESTDIR)$(MANDIR)/man$$section/; \
 	done
+endif
